@@ -1,3 +1,66 @@
 from django.shortcuts import render
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.generics import get_object_or_404
+from rest_framework import status
+from reviews.models import Review
+from reviews.serializers import ReviewListSerializer, CreateReviewListSerializer
+import requests
+import json
+from django.http import JsonResponse
 # Create your views here.
+
+class MovieApi(APIView):
+    def get(self, request):
+        url = 'https://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchWeeklyBoxOfficeList.json?key=f5eef3421c602c6cb7ea224104795888&targetDt=20230501&weekGb=0'
+        response = requests.get(url)
+        data = response.json()
+        return JsonResponse(data)
+
+class ReviewList(APIView):
+    def get(self, request):
+        review = Review.objects.all()
+        serializer = ReviewListSerializer(review, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = CreateReviewListSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response('작성완료', status=status.HTTP_200_OK)
+
+
+class ReviewListDetail(APIView):
+    def get(self, request, pk):
+        pass
+
+    def put(self, request, pk):
+        review = get_object_or_404(Review, id=pk)
+        serializer = CreateReviewListSerializer(review, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(f'수정완료{serializer.data}', status=status.HTTP_200_OK)
+        
+        # if request.user == review.user:
+        #     serializer = CreateReviewListSerializer(review, data=request.data)
+        #     if serializer.is_valid():
+        #         serializer.save()
+        #         return Response(f'수정완료{serializer.data}', status=status.HTTP_200_OK)
+        #     else:
+        #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # else:
+        #     return Response("로그인 후 작성해주세요.", status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, pk):
+        review = get_object_or_404(Review, id=pk)
+        review.delete()
+        return Response("삭제완료",status=status.HTTP_204_NO_CONTENT)
+        # if request.user == review.user:
+        #     review.delete()
+        #     return Response("삭제완료!",status=status.HTTP_204_NO_CONTENT)
+        # else:
+        #     return Response("권한이없습니다.", status=status.HTTP_403_FORBIDDEN)
+
+
+class ReviewListRecent(APIView):
+    pass
