@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from rest_framework import status
-from reviews.models import Review
-from reviews.serializers import ReviewListSerializer, CreateReviewListSerializer
+from reviews.models import Review, Comment
+from reviews.serializers import ReviewListSerializer, CreateReviewListSerializer, CommentListSerializer, CreateCommentSerializer
 import requests
 import json
 from django.http import JsonResponse
@@ -64,3 +64,43 @@ class ReviewListDetail(APIView):
 
 class ReviewListRecent(APIView):
     pass
+
+
+class CommentList(APIView):
+    def get(self, resquest, review_id):
+        review = Review.objects.get(id=review_id)
+        comments = review.comment_set.all()
+        serializer = CommentListSerializer(comments, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, review_id):
+        print(request.user)
+        serializer = CreateCommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user, review_id=review_id)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CommentDetail(APIView):
+
+    def put(self, request, review_id, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        if request.user == comment.user:
+            serializer = CreateCommentSerializer(comment, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("권한이 없습니다!", status=status.HTTP_403_FORBIDDEN)
+
+    def delete(self, request, review_id, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        if request.user == comment.user:
+            comment.delete()
+            return Response("삭제되었습니다!", status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response("권한이 없습니다!", status=status.HTTP_403_FORBIDDEN)
