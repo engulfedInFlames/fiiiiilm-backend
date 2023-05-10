@@ -9,10 +9,11 @@ class ReviewListSerializer(serializers.ModelSerializer):
         # exclude = ("like_users",)
 
 
-class CreateReviewListSerializer(serializers.ModelSerializer):
+class CreateReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = ("title", "content",)
+        fields = ("title", "content", "movie_code",)
+
 
 class CommentListSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
@@ -23,6 +24,7 @@ class CommentListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = "__all__"
+
 
 class CreateCommentSerializer(serializers.ModelSerializer):
     class Meta:
