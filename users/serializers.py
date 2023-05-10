@@ -16,16 +16,14 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = super().create(validated_data)
-        print(validated_data)
-        password = user.password
+        password = validated_data.get('password')
         user.set_password(password)
-        #nickname=f"user#{user.id}"
+        user.nickname = f"user#{user.id}"
         user.save()
-        #user.nickname
         return user
     
-    def update(self, validated_data):
-        user = super().create(validated_data)
+    def update(self, instance, validated_data):
+        user = super().update(instance, validated_data)
         password = user.password
         user.set_password(password)
         user.save()
@@ -35,12 +33,12 @@ class UserSerializer(serializers.ModelSerializer):
     
 class FollowSerializer(serializers.ModelSerializer):
     followers = serializers.StringRelatedField(many=True)
-    followings = serializers.StringRelatedField(many=True)
+    following = serializers.StringRelatedField(many=True)
     
     class Meta:
         model = User
         fields = [
-            'followings',
+            'following',
             'followers'
         ]
 

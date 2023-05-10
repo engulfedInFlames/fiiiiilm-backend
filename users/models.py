@@ -30,7 +30,7 @@ class User(AbstractBaseUser):
         max_length=255,
         unique=True,
     )
-    #nickname = models.CharField(max_length=20, default=True) 
+    nickname = models.CharField(max_length=20, default=True) 
     intro = models.TextField()
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
@@ -42,7 +42,7 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = []
 
     def __str__(self):
-        return self.email
+        return self.nickname
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"

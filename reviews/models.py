@@ -6,7 +6,7 @@ from django.utils import timezone
 
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    like_users = models.ManyToManyField(User, related_name=like_reviews, blank=True)
+    like_users = models.ManyToManyField(User, related_name='like_reviews', blank=True)
     movie_code = models.IntegerField(null=True)
     title = models.CharField(max_length=255,)
     content = models.CharField(max_length=255,)
