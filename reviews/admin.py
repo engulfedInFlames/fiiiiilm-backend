@@ -6,14 +6,14 @@ from django.contrib.auth.admin import UserAdmin
 
 class ReviewAdmin(UserAdmin):
 
-    list_display = ["id", "title", "content"]
-    list_filter = ["title"]
+    list_display = ["id", "title", "content", "movie_code",]
+    list_filter = ["title",]
     fieldsets = []
 
-    search_fields = ["title"]
+    search_fields = ["title", "content",]
     ordering = ["title"]
     filter_horizontal = []
-    list_display_links = ["id", "title", "content"]
+    list_display_links = ["id", "title", "content", "movie_code",]
 
 
 admin.site.register(Review, ReviewAdmin)

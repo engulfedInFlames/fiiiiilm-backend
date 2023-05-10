@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from rest_framework import status
 from reviews.models import Review, Comment
-from reviews.serializers import ReviewListSerializer, CreateReviewListSerializer, CommentListSerializer, CreateCommentSerializer
+from reviews.serializers import CreateReviewSerializer, ReviewListSerializer, CommentListSerializer, CreateCommentSerializer
 import requests, os
 from django.http import JsonResponse
 # Create your views here.
@@ -63,44 +63,37 @@ class ReviewList(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        # id = request.data.get("id")
-        # movie_code = id
-        serializer = CreateReviewListSerializer(data=request.data)
+        serializer = CreateReviewSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        serializer.save(user=request.user)
         return Response('작성완료', status=status.HTTP_200_OK)
+    
 
 
-class ReviewListDetail(APIView):
+class ReviewUpdate(APIView):
     def get(self, request, pk):
         pass
 
     def put(self, request, pk):
         review = get_object_or_404(Review, id=pk)
-        serializer = CreateReviewListSerializer(review, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(f'수정완료{serializer.data}', status=status.HTTP_200_OK)
 
-        # if request.user == review.user:
-        #     serializer = CreateReviewListSerializer(review, data=request.data)
-        #     if serializer.is_valid():
-        #         serializer.save()
-        #         return Response(f'수정완료{serializer.data}', status=status.HTTP_200_OK)
-        #     else:
-        #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        # else:
-        #     return Response("로그인 후 작성해주세요.", status=status.HTTP_403_FORBIDDEN)
+        if request.user == review.user:
+            serializer = CreateReviewSerializer(review, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(f'수정완료{serializer.data}', status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response("다른 계정 이거나 로그인 후 작성해주세요.", status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk):
         review = get_object_or_404(Review, id=pk)
-        review.delete()
-        return Response("삭제완료", status=status.HTTP_204_NO_CONTENT)
-        # if request.user == review.user:
-        #     review.delete()
-        #     return Response("삭제완료!",status=status.HTTP_204_NO_CONTENT)
-        # else:
-        #     return Response("권한이없습니다.", status=status.HTTP_403_FORBIDDEN)
+        if request.user == review.user:
+            review.delete()
+            return Response("삭제완료!",status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response("다른 계정 이거나 로그인 후 삭제해주세요.", status=status.HTTP_403_FORBIDDEN)
 
 
 class ReviewListRecent(APIView):
