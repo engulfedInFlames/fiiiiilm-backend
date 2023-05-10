@@ -39,7 +39,7 @@ class UserDetailView(APIView):
     def delete(self, request, user_id):
         user = get_object_or_404(User, id=user_id)
         if request.user == user:
-            user.delete()
+            user.is_active = False
             return Response("탈퇴 했습니다.",status=status.HTTP_204_NO_CONTENT)
         else:
             return Response("권한이 없습니다!", status=status.HTTP_403_FORBIDDEN)
