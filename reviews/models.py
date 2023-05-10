@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from users.models import User
 from django.utils import timezone
 # Create your models here.
@@ -7,7 +8,7 @@ from django.utils import timezone
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     like_users = models.ManyToManyField(User, related_name='like_reviews')
-    movie_code = models.IntegerField(null=True)
+    movie_code = models.IntegerField(null=True, blank=True)
     title = models.CharField(max_length=255,)
     content = models.CharField(max_length=255,)
     created_at = models.DateTimeField(auto_now_add=True,)
@@ -15,6 +16,9 @@ class Review(models.Model):
 
     def __str__(self):
         return str(self.title)
+
+    def get_absolute_url(self):
+        return reverse("review_detail", kwargs={"pk": self.pk})
 
 
 class Comment(models.Model):
