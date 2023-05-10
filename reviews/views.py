@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from rest_framework import status
 from reviews.models import Review, Comment
-from reviews.serializers import CreateReviewSerializer, ReviewListSerializer, CommentListSerializer, CreateCommentSerializer
+from reviews.serializers import CreateReviewSerializer, ReviewListSerializer, CommentListSerializer, CreateCommentSerializer, ReviewSerializer
 import requests
 import os
 from django.http import JsonResponse
@@ -64,13 +64,20 @@ class ReviewList(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        if not request.user.is_authenticated:
+            return Response({"message":"글을 쓰고 싶다면! 로그인해~"}, status=status.HTTP_401_UNAUTHORIZED)
         serializer = CreateReviewSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(user=request.user)
-        return Response('작성완료', status=status.HTTP_200_OK)
+        return Response({"message":"작성완료"}, status=status.HTTP_200_OK)
 
 
 class ReviewUpdate(APIView):
+    def get(self, request, pk):
+        review = get_object_or_404(Review, id=pk)
+        serializer = ReviewSerializer(review)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
     def put(self, request, pk):
         review = get_object_or_404(Review, id=pk)
 
@@ -82,15 +89,15 @@ class ReviewUpdate(APIView):
             else:
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response("다른 계정 이거나 로그인 후 작성해주세요.", status=status.HTTP_403_FORBIDDEN)
+            return Response({"message":"다른 계정 이거나 로그인 후 작성해주세요."}, status=status.HTTP_403_FORBIDDEN)
 
     def delete(self, request, pk):
         review = get_object_or_404(Review, id=pk)
         if request.user == review.user:
             review.delete()
-            return Response("삭제완료!", status=status.HTTP_204_NO_CONTENT)
+            return Response({"message":"삭제완료!"}, status=status.HTTP_204_NO_CONTENT)
         else:
-            return Response("다른 계정 이거나 로그인 후 삭제해주세요.", status=status.HTTP_403_FORBIDDEN)
+            return Response({"message":"다른 계정 이거나 로그인 후 작성해주세요."}, status=status.HTTP_403_FORBIDDEN)
 
 
 class ReviewLike(APIView):
@@ -98,10 +105,10 @@ class ReviewLike(APIView):
         review = get_object_or_404(Review,id=pk)
         if request.user in review.like_users.all():
             review.like_users.remove(request.user)
-            return Response("안! 좋아요!!",status=status.HTTP_200_OK)
+            return Response({"message":"안! 좋아요!!"},status=status.HTTP_200_OK)
         else:
             review.like_users.add(request.user)
-            return Response("좋아요!",status=status.HTTP_200_OK)
+            return Response({"message":"좋아요!"},status=status.HTTP_200_OK)
 
 
 
@@ -148,3 +155,5 @@ class ReviewRecent(APIView):
         reviews = Review.objects.order_by('-created_at')
         serializer = ReviewListSerializer(reviews, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
