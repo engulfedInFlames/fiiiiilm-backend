@@ -5,18 +5,55 @@ from rest_framework.generics import get_object_or_404
 from rest_framework import status
 from reviews.models import Review, Comment
 from reviews.serializers import ReviewListSerializer, CreateReviewListSerializer, CommentListSerializer, CreateCommentSerializer
-import requests
-import json
+import requests, os
 from django.http import JsonResponse
 # Create your views here.
 
 
-class MovieApi(APIView):
+class MovieApiDetail(APIView):
     def get(self, request):
-        url = 'https://kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchWeeklyBoxOfficeList.json?key=f5eef3421c602c6cb7ea224104795888&targetDt=20230501&weekGb=0'
-        response = requests.get(url)
+        API_KEY = os.environ.get('MOVIE_API_KEY')
+        url = "https://api.themoviedb.org/3/movie/now_playing?language=ko-KR&page=1&region=KR"
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Bearer {API_KEY}",
+        }
+        response = requests.get(url, headers=headers)
         data = response.json()
-        return JsonResponse(data)
+        results = []
+        for movie in data["results"][:10]:
+            results.append({
+                "id": movie["id"],
+                "title": movie["title"],
+                "genre_ids": movie["genre_ids"],
+                "original_title": movie["original_title"],
+                "overview": movie["overview"],
+                "poster_path": movie["poster_path"],
+                "release_date": movie["release_date"],
+                "vote_average": movie["vote_average"],
+            })
+        return JsonResponse(results,safe=False)
+
+class MovieApiMain(APIView):
+    def get(self, request):
+        API_KEY = os.environ.get('MOVIE_API_KEY')
+        url = "https://api.themoviedb.org/3/movie/now_playing?language=ko-KR&page=1&region=KR"
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Bearer {API_KEY}",
+        }
+        response = requests.get(url, headers=headers)
+        data = response.json()
+        results = []
+        for movie in data["results"][:10]:
+            results.append({
+                # "id": movie["id"], # 필요하면추가
+                "title": movie["title"],
+                "original_title": movie["original_title"],
+                "poster_path": movie["poster_path"],
+            })
+        return JsonResponse(results,safe=False)
+
 
 
 class ReviewList(APIView):
@@ -26,6 +63,8 @@ class ReviewList(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        # id = request.data.get("id")
+        # movie_code = id
         serializer = CreateReviewListSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -69,7 +108,7 @@ class ReviewListRecent(APIView):
 
 
 class CommentList(APIView):
-    def get(self, resquest, pk):
+    def get(self, request, pk):
         review = Review.objects.get(id=pk)
         comments = review.comment_set.all()
         serializer = CommentListSerializer(comments, many=True)
