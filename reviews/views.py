@@ -71,9 +71,6 @@ class ReviewList(APIView):
 
 
 class ReviewUpdate(APIView):
-    def get(self, request, pk):
-        pass
-
     def put(self, request, pk):
         review = get_object_or_404(Review, id=pk)
 
@@ -96,8 +93,16 @@ class ReviewUpdate(APIView):
             return Response("다른 계정 이거나 로그인 후 삭제해주세요.", status=status.HTTP_403_FORBIDDEN)
 
 
-class ReviewListRecent(APIView):
-    pass
+class ReviewLike(APIView):
+    def post(self,request, pk):
+        review = get_object_or_404(Review,id=pk)
+        if request.user in review.like_users.all():
+            review.like_users.remove(request.user)
+            return Response("안! 좋아요!!",status=status.HTTP_200_OK)
+        else:
+            review.like_users.add(request.user)
+            return Response("좋아요!",status=status.HTTP_200_OK)
+
 
 
 class CommentList(APIView):
@@ -117,7 +122,6 @@ class CommentList(APIView):
 
 
 class CommentDetail(APIView):
-
     def put(self, request, pk):
         comment = get_object_or_404(Comment, id=pk)
         if request.user == comment.user:
@@ -137,3 +141,10 @@ class CommentDetail(APIView):
             return Response("삭제되었습니다!", status=status.HTTP_204_NO_CONTENT)
         else:
             return Response("권한이 없습니다!", status=status.HTTP_403_FORBIDDEN)
+
+
+class ReviewRecent(APIView):
+    def get(self, request):
+        reviews = Review.objects.order_by('-created_at')
+        serializer = ReviewListSerializer(reviews, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

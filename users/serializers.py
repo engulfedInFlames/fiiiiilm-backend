@@ -6,7 +6,7 @@ from users.models import User
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User 
+        model = User
         fields = ["email", "password", "nickname", "intro",]
         extra_kwargs = {
             "password": {
@@ -21,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
         user.nickname = f"user#{user.id}"
         user.save()
         return user
-    
+
     def update(self, instance, validated_data):
         user = super().update(instance, validated_data)
         password = user.password
@@ -30,17 +30,17 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-    
 class FollowSerializer(serializers.ModelSerializer):
     followers = serializers.StringRelatedField(many=True)
     following = serializers.StringRelatedField(many=True)
-    
+
     class Meta:
         model = User
         fields = [
             'following',
             'followers'
         ]
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
