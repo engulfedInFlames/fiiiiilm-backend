@@ -18,7 +18,7 @@ class ReviewListSerializer(serializers.ModelSerializer):
     comments = CommentListSerializer(many=True)
 
     def get_user(self, obj):
-        return obj.user.email
+        return obj.user.nickname
 
     class Meta:
         model = Review
@@ -34,4 +34,4 @@ class CreateReviewSerializer(serializers.ModelSerializer):
 class CreateCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = "__all__"
+        fields = ("content",)
