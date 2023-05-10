@@ -5,7 +5,8 @@ from rest_framework.generics import get_object_or_404
 from rest_framework import status
 from reviews.models import Review, Comment
 from reviews.serializers import CreateReviewSerializer, ReviewListSerializer, CommentListSerializer, CreateCommentSerializer
-import requests, os
+import requests
+import os
 from django.http import JsonResponse
 # Create your views here.
 
@@ -32,7 +33,8 @@ class MovieApiDetail(APIView):
                 "release_date": movie["release_date"],
                 "vote_average": movie["vote_average"],
             })
-        return JsonResponse(results,safe=False)
+        return JsonResponse(results, safe=False)
+
 
 class MovieApiMain(APIView):
     def get(self, request):
@@ -52,8 +54,7 @@ class MovieApiMain(APIView):
                 "original_title": movie["original_title"],
                 "poster_path": movie["poster_path"],
             })
-        return JsonResponse(results,safe=False)
-
+        return JsonResponse(results, safe=False)
 
 
 class ReviewList(APIView):
@@ -67,7 +68,6 @@ class ReviewList(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save(user=request.user)
         return Response('작성완료', status=status.HTTP_200_OK)
-    
 
 
 class ReviewUpdate(APIView):
@@ -91,7 +91,7 @@ class ReviewUpdate(APIView):
         review = get_object_or_404(Review, id=pk)
         if request.user == review.user:
             review.delete()
-            return Response("삭제완료!",status=status.HTTP_204_NO_CONTENT)
+            return Response("삭제완료!", status=status.HTTP_204_NO_CONTENT)
         else:
             return Response("다른 계정 이거나 로그인 후 삭제해주세요.", status=status.HTTP_403_FORBIDDEN)
 
@@ -103,15 +103,14 @@ class ReviewListRecent(APIView):
 class CommentList(APIView):
     def get(self, request, pk):
         review = Review.objects.get(id=pk)
-        comments = review.comment_set.all()
+        comments = review.comments.all()
         serializer = CommentListSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, pk):
-        print(request.user)
         serializer = CreateCommentSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user, id=pk)
+            serializer.save(user=request.user, review_id=pk)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
