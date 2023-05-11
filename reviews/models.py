@@ -2,17 +2,33 @@ from django.db import models
 from django.urls import reverse
 from users.models import User
 from django.utils import timezone
+
 # Create your models here.
 
 
 class Review(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    like_users = models.ManyToManyField(User, related_name='like_reviews')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+    )
+    like_users = models.ManyToManyField(
+        User,
+        related_name="like_reviews",
+    )
     movie_code = models.IntegerField(null=True, blank=True)
-    title = models.CharField(max_length=255,)
-    content = models.CharField(max_length=255,)
-    created_at = models.DateTimeField(auto_now_add=True,)
-    updated_at = models.DateTimeField(auto_now=True,)
+    title = models.CharField(
+        max_length=255,
+    )
+    content = models.CharField(
+        max_length=255,
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
 
     def __str__(self):
         return str(self.title)
@@ -24,7 +40,13 @@ class Review(models.Model):
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='comments')
-    content = models.CharField(max_length=225,)
+        Review, on_delete=models.CASCADE, related_name="comments"
+    )
+    content = models.CharField(
+        max_length=225,
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return str(self.content)
