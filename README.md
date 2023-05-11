@@ -36,8 +36,6 @@
 |/api/v1/reviews/<int:pk>/|GET, PUT, DELETE|상세 리뷰 조회, 수정, 삭제|{"user", "title", "content", "movie_code"}|{"user", "movie_code", "title", "content", "created_at", "updated_at", "comments", "comment_count", "like_users" "like_count"}|
 |/api/v1/reviews/<int:pk>/like/|POST|리뷰 좋아요|{"user", "pk"}||
 |/api/v1/reviews/<int:pk>/comments/|GET, POST|댓글 조회, 작성|{"user", "pk", "content"}|{"user", "review", "content", "created_at", "updated_at"}|
-|/api/v1/comments/<int:pk>/|ㅖㅕㅅ, POST|댓글 조회, 작성|{"user", "pk", "content"}|{"user", "review", "content", "created_at", "updated_at"}|
-|/api/v1/reviews/<int:pk>/comments/|PUT, DELETE|댓글 수정,|{"user", "pk", "content"}|{"user", "review", "content", "created_at", "updated_at"}|
-|/api/v1/reviews/<int:pk>/comments/|GET, POST|댓글  삭제|{"user", "pk", "content"}|{"user", "review", "content", "created_at", "updated_at"}|
-|/api/v1/reviews/<int:pk>/comments/|PUT, DELETE|댓글 수정, 삭제|{"user", "pk", "content"}|{"user", "review", "content", "created_at", "updated_at"}|
+|/api/v1/comments/<int:pk>/|PUT, DELETE|댓글 수정, 삭제|{"user", "pk", "content"}|{"user", "review", "content", "created_at", "updated_at"}|
+
 
