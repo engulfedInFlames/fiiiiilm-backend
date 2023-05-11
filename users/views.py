@@ -49,6 +49,12 @@ class UserView(APIView):
                 {"message": f"{serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST
             )
 
+class UserList(APIView):
+    def get(self, request):
+        user = User.objects.all()
+        serializer = UserSerializer(user, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK) 
+
 
 class UserDetailView(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
