@@ -6,7 +6,8 @@ from users import views
 
 
 urlpatterns = [
-    # path('signup/', views.UserView.as_view(), name='user_view'),
+    path('', views.UserList.as_view(), name='user_list'),
+    path('signup/', views.UserView.as_view(), name='user_view'),
     path("me/", views.Me.as_view()),
     path("<int:user_id>/", views.UserDetailView.as_view(), name="user_detail_view"),
     path("<int:user_id>/follow/", views.FollowView.as_view(), name="follow_view"),

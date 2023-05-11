@@ -13,6 +13,17 @@ from users.serializers import (
 from users.models import User
 
 
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+class UserList(APIView):
+    def get(self, request):
+        user = User.objects.all()
+        print(user)
+        serializer = UserSerializer(user, many=True)
+        return Response(serializer.data)
+
+
 class Me(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -25,16 +36,22 @@ class Me(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-# class UserView(APIView):
-#     def post(self, request):
-#         serializer = UserSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response({"message": "가입완료!"}, status=status.HTTP_201_CREATED)
-#         else:
-#             return Response(
-#                 {"message": f"{serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST
-#             )
+class UserView(APIView):
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "가입완료!"}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(
+                {"message": f"{serializer.errors}"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+class UserList(APIView):
+    def get(self, request):
+        user = User.objects.all()
+        serializer = UserSerializer(user, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK) 
 
 
 class UserDetailView(APIView):
