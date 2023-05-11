@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from users.serializers import (
     UserSerializer,
     CustomTokenObtainPairSerializer,
+    FollowingSerializer,
 )
 from users.models import User
 
@@ -76,20 +77,18 @@ class UserDetailView(APIView):
 class FollowView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    # def get(self, request, user_id):
-    #     you = get_object_or_404(User, id=user_id)
-    #     serializer = FollowSerializer(you)
-    #     return Response(serializer.data)
-
     def post(self, request, user_id):
         you = get_object_or_404(User, id=user_id)
         me = request.user
-        if me in you.followers.all():
-            you.followers.remove(me)
-            return Response(status=status.HTTP_200_OK)
-        else:
+        is_follow = request.data.get("is_follow")
+
+        if is_follow:
             you.followers.add(me)
-            return Response(status=status.HTTP_200_OK)
+        else:
+            you.followers.remove(me)
+
+        serializer = FollowingSerializer(me.following, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class KaKaoLogin(APIView):
@@ -147,9 +146,8 @@ class KaKaoLogin(APIView):
         except User.DoesNotExist:
             user = User.objects.create_user(email=user_email)
             user.set_unusable_password()
-            # user.nickname = profile.get("nickname", f"user#{user.pk}")
-            # user.avatar = profile.get("thumbnail_image_url", None)
-            user.nickname = f"user#{user.pk}"
+            user.nickname = profile.get("nickname", f"user#{user.pk}")
+            user.avatar = profile.get("thumbnail_image_url", None)
             user.save()
 
             refresh_token = CustomTokenObtainPairSerializer.get_token(user)
@@ -208,8 +206,6 @@ class GithubLogin(APIView):
 
         user_emails = response.json()
 
-        user_avatar = user_data.get("avatar_url")
-        user_nickname = user_data.get("login")
         user_email = None
 
         for email_data in user_emails:
@@ -230,8 +226,8 @@ class GithubLogin(APIView):
         except User.DoesNotExist:
             user = User.objects.create_user(email=user_email)
             user.set_unusable_password()
-            user.nickname = f"user#{user.pk}"
-            # user.avatar = user_avatar
+            user.nickname = user_data.get("login", f"user#{user.pk}")
+            user.avatar = user_data.get("avatar_url", None)
             user.save()
 
             refresh_token = CustomTokenObtainPairSerializer.get_token(user)
