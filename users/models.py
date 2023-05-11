@@ -47,7 +47,8 @@ class User(AbstractBaseUser):
 
     nickname = models.CharField("닉네임", max_length=20, unique=True)
     intro = models.TextField("자기소개", null=True, blank=True)
-    profile_img = models.ImageField("프로필 이미지", blank=True, upload_to="media/profile_img/%Y/%m", default="default.png")
+    avatar = models.URLField(blank=True)
+    # profile_img = models.ImageField("프로필 이미지", blank=True, upload_to="media/profile_img/%Y/%m", default="default.png")
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     following = models.ManyToManyField(
@@ -62,9 +63,6 @@ class User(AbstractBaseUser):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
-
-    class Meta:
-        db_table = "User"
 
     def __str__(self):
         return self.nickname
