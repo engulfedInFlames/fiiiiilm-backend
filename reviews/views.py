@@ -14,26 +14,25 @@ from django.http import JsonResponse
 class MovieApiDetail(APIView):
     def get(self, request):
         API_KEY = os.environ.get('MOVIE_API_KEY')
-        url = "https://api.themoviedb.org/3/movie/now_playing?language=ko-KR&page=1&region=KR"
+        url = f"https://api.themoviedb.org/3/movie/{447365}?append_to_response=credits%252C&language=ko-KR"# 
         headers = {
             "accept": "application/json",
             "Authorization": f"Bearer {API_KEY}",
         }
         response = requests.get(url, headers=headers)
         data = response.json()
-        results = []
-        for movie in data["results"][:10]:
-            results.append({
-                "id": movie["id"],
-                "title": movie["title"],
-                "genre_ids": movie["genre_ids"],
-                "original_title": movie["original_title"],
-                "overview": movie["overview"],
-                "poster_path": movie["poster_path"],
-                "release_date": movie["release_date"],
-                "vote_average": movie["vote_average"],
-            })
-        return JsonResponse(results, safe=False)
+        poster_url = "https://image.tmdb.org/t/p/w500"
+        result = {
+            "movie_code": data["id"],
+            "title": data["title"],
+            "genres": data["genres"][0]["name"],
+            "overview": data["overview"],
+            "poster_path": (f'{poster_url}{data["poster_path"]}'),
+            "release_date": data["release_date"],
+            "runtime": (f'{data["runtime"]}min'),
+            "vote_average": data["vote_average"],
+        }
+        return JsonResponse(result, safe=False)
 
 
 class MovieApiMain(APIView):
@@ -46,13 +45,14 @@ class MovieApiMain(APIView):
         }
         response = requests.get(url, headers=headers)
         data = response.json()
+        poster_url = "https://image.tmdb.org/t/p/w500"
         results = []
-        for movie in data["results"][:10]:
+        for idx, movie in enumerate(data["results"][:10], start=1):
             results.append({
-                # "id": movie["id"], # 필요하면추가
+                "rank": idx,
+                "movie_code": movie["id"],
                 "title": movie["title"],
-                "original_title": movie["original_title"],
-                "poster_path": movie["poster_path"],
+                "poster_path": (f'{poster_url}{movie["poster_path"]}'),
             })
         return JsonResponse(results, safe=False)
 
@@ -72,7 +72,7 @@ class ReviewList(APIView):
         return Response({"message":"작성완료"}, status=status.HTTP_200_OK)
 
 
-class ReviewUpdate(APIView):
+class ReviewDetail(APIView):
     def get(self, request, pk):
         review = get_object_or_404(Review, id=pk)
         serializer = ReviewSerializer(review)
@@ -80,7 +80,6 @@ class ReviewUpdate(APIView):
     
     def put(self, request, pk):
         review = get_object_or_404(Review, id=pk)
-
         if request.user == review.user:
             serializer = CreateReviewSerializer(review, data=request.data)
             if serializer.is_valid():
@@ -109,7 +108,6 @@ class ReviewLike(APIView):
         else:
             review.like_users.add(request.user)
             return Response({"message":"좋아요!"},status=status.HTTP_200_OK)
-
 
 
 class CommentList(APIView):
@@ -155,5 +153,3 @@ class ReviewRecent(APIView):
         reviews = Review.objects.order_by('-created_at')
         serializer = ReviewListSerializer(reviews, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
-
