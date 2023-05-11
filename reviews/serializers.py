@@ -15,21 +15,38 @@ class CommentListSerializer(serializers.ModelSerializer):
 
 class ReviewListSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
+    comment_count = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
 
     def get_user(self, obj):
         return obj.user.nickname
 
+    def get_comment_count(self, obj):
+        return Comment.objects.filter(review=obj).count()
+
+    def get_like_count(self, obj):
+        return obj.like_users.count()
+
     class Meta:
         model = Review
-        fields = "__all__"
+        # fields = "__all__"
+        exclude = ('like_users',)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     comments = CommentListSerializer(many=True)
+    comment_count = serializers.SerializerMethodField()
+    like_count = serializers.SerializerMethodField()
 
     def get_user(self, obj):
         return obj.user.nickname
+
+    def get_comment_count(self, obj):
+        return Comment.objects.filter(review=obj).count()
+
+    def get_like_count(self, obj):
+        return obj.like_users.count()
 
     class Meta:
         model = Review

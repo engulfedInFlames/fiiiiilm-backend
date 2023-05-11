@@ -1,10 +1,9 @@
 from django.contrib import admin
 from reviews.models import Review
-from django.contrib.auth.admin import UserAdmin
 # Register your models here.
 
 
-class ReviewAdmin(UserAdmin):
+class ReviewAdmin(admin.ModelAdmin):
 
     list_display = ["id", "title", "content", "movie_code",]
     list_filter = ["title",]
