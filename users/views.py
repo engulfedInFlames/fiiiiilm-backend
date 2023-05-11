@@ -5,18 +5,12 @@ from rest_framework.views import APIView
 from rest_framework.generics import get_object_or_404
 from rest_framework import status, permissions
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 from users.serializers import (
     UserSerializer,
-    FollowSerializer,
     CustomTokenObtainPairSerializer,
 )
 from users.models import User
-
-
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
 
 
 class Me(APIView):
@@ -73,20 +67,22 @@ class UserDetailView(APIView):
 
 
 class FollowView(APIView):
-    def get(self, request, user_id):
-        you = get_object_or_404(User, id=user_id)
-        serializer = FollowSerializer(you)
-        return Response(serializer.data)
+    permission_classes = [permissions.IsAuthenticated]
+
+    # def get(self, request, user_id):
+    #     you = get_object_or_404(User, id=user_id)
+    #     serializer = FollowSerializer(you)
+    #     return Response(serializer.data)
 
     def post(self, request, user_id):
         you = get_object_or_404(User, id=user_id)
         me = request.user
         if me in you.followers.all():
             you.followers.remove(me)
-            return Response("Unfollow 했습니다.", status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK)
         else:
             you.followers.add(me)
-            return Response("Follow 했습니다.", status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK)
 
 
 class KaKaoLogin(APIView):
@@ -146,6 +142,7 @@ class KaKaoLogin(APIView):
             user.set_unusable_password()
             # user.nickname = profile.get("nickname", f"user#{user.pk}")
             # user.avatar = profile.get("thumbnail_image_url", None)
+            user.nickname = f"user#{user.pk}"
             user.save()
 
             refresh_token = CustomTokenObtainPairSerializer.get_token(user)

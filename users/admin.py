@@ -8,12 +8,18 @@ from users.models import User
 
 
 class UserCreationForm(forms.ModelForm):
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
+    password2 = forms.CharField(
+        label="Password confirmation", widget=forms.PasswordInput
+    )
 
     class Meta:
         model = User
-        fields = ["email", "nickname", "intro",]
+        fields = [
+            "email",
+            "nickname",
+            "intro",
+        ]
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -42,17 +48,42 @@ class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
 
-    list_display = ["email", "is_admin", "nickname", "intro",]
+    list_display = [
+        "email",
+        "is_admin",
+        "nickname",
+        "intro",
+    ]
     list_filter = ["is_admin"]
     fieldsets = [
-        (None, {"fields": ("email", "password", "nickname", "intro",)}),
+        (
+            None,
+            {
+                "fields": (
+                    "email",
+                    "password",
+                    "nickname",
+                    "intro",
+                    "following",
+                )
+            },
+        ),
         ("Permissions", {"fields": ("is_admin",)}),
     ]
     add_fieldsets = [
-        (None, {
-            "classes": ("wide",),
-            "fields": ("email", "password1", "password2", "nickname", "intro",),
-        }),
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": (
+                    "email",
+                    "password1",
+                    "password2",
+                    "nickname",
+                    "intro",
+                ),
+            },
+        ),
     ]
     search_fields = ("email",)
     ordering = ("email",)
