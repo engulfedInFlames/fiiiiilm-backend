@@ -1,9 +1,6 @@
 from django.db import models
 from django.urls import reverse
 from users.models import User
-from django.utils import timezone
-
-# Create your models here.
 
 
 class Review(models.Model):
