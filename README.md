@@ -4,7 +4,7 @@
 ## 와이어 프레임
 ### https://www.figma.com/file/x5MlxQWD53HmMhct4ekcbD/fiiiiilm?type=design&node-id=0-1&t=E6dGrX9DReUX8c6c-0
 ## ERD
-![Alt text](https://file.notion.so/f/s/357c610e-8fcb-47b1-920c-39c81a939fe5/Untitled.png?id=22f3c1a6-f124-4011-9c84-360ffe223d3d&table=block&spaceId=23cd6162-c29e-40ea-b2ea-6d40b7d2a522&expirationTimestamp=1683886574559&signature=_UNA9WO_DAKUE79NVdq8TFT9uSh0bgY1eqKjm0vkBoQ&downloadName=Untitled.png)
+![Alt text](https://file.notion.so/f/s/a2adae27-bcf7-40d2-84aa-00868f2e5ed0/Untitled.png?id=79746387-0410-46f5-b252-dbd70e66c8a3&table=block&spaceId=23cd6162-c29e-40ea-b2ea-6d40b7d2a522&expirationTimestamp=1683963697748&signature=rafF63BjvDi8lY18DnDI8NgtDEg1UVPvPgS8PQG2s9k&downloadName=Untitled.png)
 ## 기능
 - 회원기능
   - 소셜 로그인 API를 사용합니다.
