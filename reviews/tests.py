@@ -1,13 +1,6 @@
-from django.test import TestCase
 from django.urls import reverse
-from faker import Faker
 from rest_framework.test import APITestCase
-from rest_framework import status
 from users.models import User
-from reviews.models import Review
-from reviews.serializers import ReviewSerializer
-
-# Create your tests here.
 
 
 class ReviewsCreateTest(APITestCase):
@@ -18,7 +11,9 @@ class ReviewsCreateTest(APITestCase):
         cls.user = User.objects.create_user("kyu@mail.com","123","nick")
 
     def setUp(self):
-        self.access_token = self.client.post(reverse("token_obtain_pair"), self.user_data).data["access"]
+        self.access_token = self.client.post(
+            reverse("token_obtain_pair"), self.user_data
+        ).data["access"]
 
     def test_fail_if_not_logged_in(self):
         url = reverse("review_list")
@@ -29,9 +24,9 @@ class ReviewsCreateTest(APITestCase):
         response = self.client.post(
             path=reverse("review_list"),
             data=self.review_data,
-            HTTP_AUTHORIZATION=f"Bearer {self.access_token}"
+            HTTP_AUTHORIZATION=f"Bearer {self.access_token}",
         )
-        self.assertEqual(response.data["message"],"작성완료")
+        self.assertEqual(response.data["message"], "작성완료")
         self.assertEqual(response.status_code, 200)
 
 class ReviewReadTest(APITestCase):
