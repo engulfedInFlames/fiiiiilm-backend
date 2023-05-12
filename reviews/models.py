@@ -17,11 +17,16 @@ class Review(models.Model):
         related_name="like_reviews",
     )
     movie_code = models.IntegerField(null=True, blank=True)
+    movie_title = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+    )
     title = models.CharField(
         max_length=255,
     )
     content = models.CharField(
-        max_length=255,
+        max_length=1000,
     )
     created_at = models.DateTimeField(
         auto_now_add=True,

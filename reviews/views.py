@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
-from rest_framework import status
+from rest_framework import status, permissions
 from reviews.models import Review, Comment
 from reviews.serializers import (
     CreateReviewSerializer,
@@ -16,30 +16,6 @@ import os
 from django.http import JsonResponse
 
 # Create your views here.
-
-
-class MovieApiDetail(APIView):
-    def get(self, request):
-        API_KEY = os.environ.get("MOVIE_API_KEY")
-        url = f"https://api.themoviedb.org/3/movie/{447365}?append_to_response=credits%252C&language=ko-KR"  #
-        headers = {
-            "accept": "application/json",
-            "Authorization": f"Bearer {API_KEY}",
-        }
-        response = requests.get(url, headers=headers)
-        data = response.json()
-        poster_url = "https://image.tmdb.org/t/p/w500"
-        result = {
-            "movie_code": data["id"],
-            "title": data["title"],
-            "genres": data["genres"][0]["name"],
-            "overview": data["overview"],
-            "poster_path": (f'{poster_url}{data["poster_path"]}'),
-            "release_date": data["release_date"],
-            "runtime": (f'{data["runtime"]}min'),
-            "vote_average": data["vote_average"],
-        }
-        return JsonResponse(result, safe=False)
 
 
 class MovieApiMain(APIView):
@@ -68,21 +44,52 @@ class MovieApiMain(APIView):
         return JsonResponse(results, safe=False)
 
 
+class MovieApiDetail(APIView):
+    def get(self, request, movie_code):
+        API_KEY = os.environ.get("MOVIE_API_KEY")
+        url = f"https://api.themoviedb.org/3/movie/{movie_code}?append_to_response=credits%252C&language=ko-KR"
+        headers = {
+            "accept": "application/json",
+            "Authorization": f"Bearer {API_KEY}",
+        }
+        response = requests.get(url, headers=headers)
+        data = response.json()
+        poster_url = "https://image.tmdb.org/t/p/w500"
+        result = {
+            "movieCode": data["id"],
+            "title": data["title"],
+            "genre": data["genres"][0]["name"],
+            "overview": data["overview"],
+            "posterPath": (f'{poster_url}{data["poster_path"]}'),
+            "releaseDate": data["release_date"],
+            "runtime": (f'{data["runtime"]}min'),
+            "rating": data["vote_average"],
+        }
+        return JsonResponse(result, safe=False)
+
+
 class ReviewList(APIView):
-    def get(self, request):
-        review = Review.objects.all()
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get(self, request, movie_code):
+        review = Review.objects.filter(movie_code=movie_code)
         serializer = ReviewListSerializer(review, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
-        if not request.user.is_authenticated:
-            return Response(
-                {"message": "글을 쓰고 싶다면! 로그인해~"}, status=status.HTTP_401_UNAUTHORIZED
-            )
+    def post(self, request, movie_code):
+        movie_title = request.data.get("movie_title", None)
+
+        if movie_title is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
         serializer = CreateReviewSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
-        return Response({"message": "작성완료"}, status=status.HTTP_200_OK)
+        serializer.save(
+            user=request.user,
+            movie_code=movie_code,
+            movie_title=movie_title,
+        )
+        return Response(status=status.HTTP_200_OK)
 
 
 class ReviewDetail(APIView):
