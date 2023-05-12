@@ -2,6 +2,12 @@ from rest_framework import serializers
 from reviews.models import Review, Comment
 
 
+class CreateCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ("content",)
+
+
 class CommentListSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
 
@@ -11,6 +17,16 @@ class CommentListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = "__all__"
+
+
+class CreateReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = (
+            "title",
+            "content",
+            "movie_code",
+        )
 
 
 class ReviewListSerializer(serializers.ModelSerializer):
@@ -55,19 +71,3 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = "__all__"
-
-
-class CreateReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Review
-        fields = (
-            "title",
-            "content",
-            "movie_code",
-        )
-
-
-class CreateCommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = ("content",)
