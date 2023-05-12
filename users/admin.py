@@ -8,12 +8,19 @@ from users.models import User
 
 
 class UserCreationForm(forms.ModelForm):
-    password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput)
+    password2 = forms.CharField(
+        label="Password confirmation", widget=forms.PasswordInput
+    )
 
     class Meta:
         model = User
-        fields = ["email", "nickname","profile_img", "intro"]
+        fields = [
+            "email",
+            "nickname",
+            "avatar",
+            "intro",
+        ]
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1")
@@ -35,7 +42,15 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ["email", "password", "is_active", "is_admin", "nickname","profile_img", "intro"]
+        fields = [
+            "email",
+            "password",
+            "is_active",
+            "is_admin",
+            "nickname",
+            "avatar",
+            "intro",
+        ]
 
 
 class UserAdmin(BaseUserAdmin):
@@ -45,15 +60,42 @@ class UserAdmin(BaseUserAdmin):
     list_display = ["email", "nickname", "is_admin"]
     list_filter = ["is_admin"]
     fieldsets = [
-        (None, {"fields": ("email", "password",)}),
-        ('Personal info', {'fields': ("nickname", "intro", "profile_img",)}),
+        (
+            None,
+            {
+                "fields": (
+                    "email",
+                    "password",
+                )
+            },
+        ),
+        (
+            "Personal info",
+            {
+                "fields": (
+                    "nickname",
+                    "intro",
+                    "avatar",
+                )
+            },
+        ),
         ("Permissions", {"fields": ("is_admin",)}),
     ]
     add_fieldsets = [
-        (None, {
-            "classes": ("wide",),
-            "fields": ("email", "password1", "password2", "nickname", "intro", "profile_img"),
-        }),
+        (
+            None,
+            {
+                "classes": ("wide",),
+                "fields": (
+                    "email",
+                    "password1",
+                    "password2",
+                    "nickname",
+                    "intro",
+                    "avatar",
+                ),
+            },
+        ),
     ]
     search_fields = ("email",)
     ordering = ("email",)
