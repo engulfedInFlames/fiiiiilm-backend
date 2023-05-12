@@ -28,7 +28,11 @@ SECRET_KEY = os.environ.get("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['13.125.229.125']
+ALLOWED_HOSTS = ['13.125.229.125', 'api.bechol.com',]
+
+CSRF_TRUSTED_ORIGINS = ['https://api.bechol.com','api.bechol.com','.bechol.com',]
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 
 # Application definition
