@@ -125,14 +125,16 @@ class ReviewDetail(APIView):
 
 
 class ReviewLike(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def post(self, request, pk):
         review = get_object_or_404(Review, id=pk)
         if request.user in review.like_users.all():
             review.like_users.remove(request.user)
-            return Response({"message": "안! 좋아요!!"}, status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK)
         else:
             review.like_users.add(request.user)
-            return Response({"message": "좋아요!"}, status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK)
 
 
 class CommentList(APIView):
