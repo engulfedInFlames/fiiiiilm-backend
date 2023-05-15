@@ -2,6 +2,12 @@ from rest_framework import serializers
 from reviews.models import Review, Comment
 
 
+class CreateCommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ("content",)
+
+
 class CommentListSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
 
@@ -13,11 +19,22 @@ class CommentListSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CreateReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = (
+            "title",
+            "content",
+            "movie_code",
+        )
+
+
 class ReviewListSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     avatar = serializers.SerializerMethodField()
     comment_count = serializers.SerializerMethodField()
     like_count = serializers.SerializerMethodField()
+    like_user_pk = serializers.SerializerMethodField()
 
     def get_user(self, obj):
         return obj.user.nickname
@@ -31,9 +48,13 @@ class ReviewListSerializer(serializers.ModelSerializer):
     def get_like_count(self, obj):
         return obj.like_users.count()
 
+    def get_like_user_pk(self, obj):
+        queryset = obj.like_users.values("pk")
+
+        return [item["pk"] for item in queryset]
+
     class Meta:
         model = Review
-        # fields = "__all__"
         exclude = ("like_users",)
 
 
@@ -55,19 +76,3 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = "__all__"
-
-
-class CreateReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Review
-        fields = (
-            "title",
-            "content",
-            "movie_code",
-        )
-
-
-class CreateCommentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Comment
-        fields = ("content",)

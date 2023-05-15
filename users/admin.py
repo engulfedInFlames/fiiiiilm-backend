@@ -79,7 +79,15 @@ class UserAdmin(BaseUserAdmin):
                 )
             },
         ),
-        ("Permissions", {"fields": ("is_admin",)}),
+        (
+            "Permissions",
+            {
+                "fields": (
+                    "is_admin",
+                    "is_active",
+                )
+            },
+        ),
     ]
     add_fieldsets = [
         (
