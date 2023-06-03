@@ -5,23 +5,22 @@ from faker import Faker
 
 from .models import User
 
-faker = Faker()
-
 
 class UserAPITest(APITestCase):
-    USER_DATA = {
-        "email": faker.free_email(),
-        "password": faker.pystr(),
-        "nickname": faker.profile(fields=["username"]).get("username"),
-        "intro": faker.sentence(),
-        "avatar": faker.image_url(),
-    }
-    USER = None
-
-    def setUp(self) -> None:
+    @classmethod
+    def setUpTestData(self):
         """
         클래스 변수 USER_DATA를 바탕으로 `USER`에 `User` 객체를 할당합니다. 또한, `test_follow_user` 함수를 위해서 10명의 사용자를 임의 생성합니다.
         """
+        self.faker = Faker()
+
+        self.USER_DATA = {
+            "email": self.faker.free_email(),
+            "password": self.faker.pystr(),
+            "nickname": self.faker.profile(fields=["username"]).get("username"),
+            "intro": self.faker.sentence(),
+            "avatar": self.faker.image_url(),
+        }
 
         created_user = User.objects.create_user(
             email=self.USER_DATA["email"],
@@ -35,15 +34,15 @@ class UserAPITest(APITestCase):
         """
 
         # 회원가입 기능을 테스트합니다.
-        user_email = faker.free_email()
-        user_password = faker.pystr()
+        user_email = self.faker.free_email()
+        user_password = self.faker.pystr()
         request_user_data = {
             "email": user_email,
             "password1": user_password,
             "password2": user_password,
-            "nickname": faker.profile(fields=["username"]).get("username"),
-            "intro": faker.sentence(),
-            "avatar": faker.image_url(),
+            "nickname": self.faker.profile(fields=["username"]).get("username"),
+            "intro": self.faker.sentence(),
+            "avatar": self.faker.image_url(),
         }
 
         url = reverse("user_view")
@@ -69,13 +68,13 @@ class UserAPITest(APITestCase):
         access_token = (response.json())["access"]
         not_updated_user = User.objects.get(email=user_email)
 
-        new_user_password = faker.pystr()
+        new_user_password = self.faker.pystr()
         new_request_user_data = {
             "password1": user_password,
             "password2": new_user_password,
-            "nickname": faker.profile(fields=["username"]).get("username"),
-            "intro": faker.sentence(),
-            "avatar": faker.image_url(),
+            "nickname": self.faker.profile(fields=["username"]).get("username"),
+            "intro": self.faker.sentence(),
+            "avatar": self.faker.image_url(),
         }
 
         not_updated_user_pk = not_updated_user.pk
@@ -142,11 +141,11 @@ class UserAPITest(APITestCase):
 
         for _ in range(10):
             User.objects.create(
-                email=faker.free_email(),
-                password=faker.pystr(),
-                nickname=faker.profile(fields=["username"]).get("username"),
-                intro=faker.sentence(),
-                avatar=faker.image_url(),
+                email=self.faker.free_email(),
+                password=self.faker.pystr(),
+                nickname=self.faker.profile(fields=["username"]).get("username"),
+                intro=self.faker.sentence(),
+                avatar=self.faker.image_url(),
             )
 
         # 권한 획득을 위해 액세스 토큰을 받아 옵니다.
