@@ -29,27 +29,7 @@ class UserAPITest(APITestCase):
         )
         self.USER = created_user
 
-        url = reverse("token_obtain_pair")
-        response = self.client.post(
-            url,
-            {
-                "email": self.USER_DATA["email"],
-                "password": self.USER_DATA["password"],
-            },
-        )
-
-        for _ in range(10):
-            User.objects.create(
-                email=faker.free_email(),
-                password=faker.pystr(),
-                nickname=faker.profile(fields=["username"]).get("username"),
-                intro=faker.sentence(),
-                avatar=faker.image_url(),
-            )
-
-        self.assertEqual(User.objects.count(), 11)
-
-    def test_signup_and_login_update_user(self):
+    def test_from_signup_to_update_user(self):
         """
         회원가입 기능, 토큰 기반 로그인 기능, 사용자 정보 업데이트 기능을 테스트합니다.
         """
@@ -134,7 +114,7 @@ class UserAPITest(APITestCase):
 
     def test_get_me(self):
         """
-        `permission_classes`가 `IsAuthenticated`인 API로부터 로그인한 사용자의 정보를 가지고 올 수 있는지 테스트합니다.
+        사용자 데이터를 가지고 올 수 있는지를 테스트합니다.
         """
 
         url = reverse("token_obtain_pair")
@@ -159,6 +139,15 @@ class UserAPITest(APITestCase):
         """
         `setUp`에서 생성된 10명의 사용자들을 대상으로 팔로우 기능을 테스트합니다.
         """
+
+        for _ in range(10):
+            User.objects.create(
+                email=faker.free_email(),
+                password=faker.pystr(),
+                nickname=faker.profile(fields=["username"]).get("username"),
+                intro=faker.sentence(),
+                avatar=faker.image_url(),
+            )
 
         # 권한 획득을 위해 액세스 토큰을 받아 옵니다.
         url = reverse("token_obtain_pair")
