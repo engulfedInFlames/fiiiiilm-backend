@@ -28,6 +28,7 @@ jobs:
         env:
           DJANGO_SECRET_KEY: ${{secrets.DJANGO_SECRET_KEY}}
         run: |
+          python manage.py makemigrations
           python manage.py migrate
       - name: Run Tests
         run: |
