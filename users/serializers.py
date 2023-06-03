@@ -52,6 +52,86 @@ class MyReviewSerializer(serializers.ModelSerializer):
         )
 
 
+class CreateUserSerializer(serializers.ModelSerializer):
+    password1 = serializers.CharField(
+        write_only=True,
+        required=True,
+    )
+    password2 = serializers.CharField(
+        write_only=True,
+        required=True,
+    )
+    avatar = serializers.URLField(required=False)
+    intro = serializers.CharField(required=False)
+
+    class Meta:
+        model = User
+        fields = (
+            "email",
+            "password1",
+            "password2",
+            "nickname",
+            "avatar",
+            "intro",
+        )
+
+    def create(self, validated_data):
+        password1 = validated_data.pop("password1", None)
+        password2 = validated_data.pop("password2", None)
+
+        if not password1 or not password2:
+            return ParseError
+
+        if password1 != password2:
+            return ValueError
+
+        user = super().create(validated_data)
+        user.set_password(password1)
+        user.save()
+
+        return user
+
+
+class UpdateUserSerializer(serializers.ModelSerializer):
+    password1 = serializers.CharField(
+        write_only=True,
+        required=True,
+    )
+    password2 = serializers.CharField(
+        write_only=True,
+        required=True,
+    )
+    avatar = serializers.URLField(required=False)
+    intro = serializers.CharField(required=False)
+
+    class Meta:
+        model = User
+        fields = (
+            "password1",
+            "password2",
+            "nickname",
+            "avatar",
+            "intro",
+        )
+
+    def update(self, instance, validated_data):
+        cur_password = validated_data.pop("password1", None)
+        new_password = validated_data.pop("password2", None)
+
+        user = super().update(instance, validated_data)
+
+        if not cur_password or not new_password:
+            return ParseError
+
+        if not user.check_password(cur_password):
+            raise ValueError
+
+        user.set_password(new_password)
+        user.save()
+
+        return user
+
+
 class UserSerializer(serializers.ModelSerializer):
     followings = serializers.SerializerMethodField()
     followers = serializers.SerializerMethodField()
@@ -84,22 +164,6 @@ class UserSerializer(serializers.ModelSerializer):
             "followers",
             "reviews",
         ]
-
-    def update(self, instance, validated_data):
-        cur_password = validated_data.pop("password1", None)
-        new_password = validated_data.pop("password2", None)
-
-        if not all(cur_password, new_password):
-            return ParseError
-
-        if not user.check_password(cur_password):
-            raise NotAuthenticated
-
-        user = super().update(instance, validated_data)
-        user.set_password(new_password)
-        user.save()
-
-        return user
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):

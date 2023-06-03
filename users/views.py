@@ -8,8 +8,9 @@ from rest_framework.response import Response
 
 from users.serializers import (
     UserSerializer,
+    CreateUserSerializer,
+    UpdateUserSerializer,
     CustomTokenObtainPairSerializer,
-    FollowingSerializer,
 )
 from users.models import User
 
@@ -35,9 +36,9 @@ class Me(APIView):
 
 class UserView(APIView):
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        serializer = CreateUserSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            user = serializer.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -46,15 +47,15 @@ class UserView(APIView):
 class UserDetailView(APIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
-    def get(self, request, user_id):
-        user = get_object_or_404(User, id=user_id)
+    def get(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, user_id):
-        user = get_object_or_404(User, id=user_id)
+    def put(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
         if request.user == user:
-            serializer = UserSerializer(user, data=request.data)
+            serializer = UpdateUserSerializer(user, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -63,8 +64,8 @@ class UserDetailView(APIView):
         else:
             return Response(status=status.HTTP_403_FORBIDDEN)
 
-    def delete(self, request, user_id):
-        user = get_object_or_404(User, id=user_id)
+    def delete(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
         if request.user == user:
             user.is_active = False
             user.save()
@@ -76,8 +77,8 @@ class UserDetailView(APIView):
 class FollowView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, user_id):
-        you = get_object_or_404(User, id=user_id)
+    def get(self, request, pk):
+        you = get_object_or_404(User, pk=pk)
         me = request.user
         is_follow = request.data.get("is_follow")
 
@@ -86,8 +87,7 @@ class FollowView(APIView):
         else:
             you.followers.remove(me)
 
-        serializer = FollowingSerializer(me.following, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK)
 
 
 class KaKaoLogin(APIView):
@@ -194,7 +194,6 @@ class GithubLogin(APIView):
         )
 
         user_data = response.json()
-
         response = requests.get(
             user_email_url,
             headers={

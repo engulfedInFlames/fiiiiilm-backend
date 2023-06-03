@@ -1,25 +1,29 @@
+import os
 from pathlib import Path
-import os, dotenv
+
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-dotenv.read_dotenv((os.path.join(BASE_DIR, ".env")))
-
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["13.125.229.125", 
-                 "api.bechol.com",
-                 "localhost",
-                 "127.0.0.1",
-                 "52.79.206.46",]
+ALLOWED_HOSTS = [
+    "13.125.229.125",
+    "api.bechol.com",
+    "localhost",
+    "127.0.0.1",
+    "52.79.206.46",
+]
 
-CSRF_TRUSTED_ORIGINS = ['https://api.bechol.com','api.bechol.com','.bechol.com',]
+CSRF_TRUSTED_ORIGINS = [
+    "https://api.bechol.com",
+    "api.bechol.com",
+    ".bechol.com",
+]
 CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
 
 
 # Application definition
