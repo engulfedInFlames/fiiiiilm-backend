@@ -1,10 +1,9 @@
+import os
 from pathlib import Path
-import os, dotenv
+
 from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-dotenv.read_dotenv((os.path.join(BASE_DIR, ".env")))
 
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
@@ -25,7 +24,6 @@ CSRF_TRUSTED_ORIGINS = [
     ".bechol.com",
 ]
 CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
 
 
 # Application definition
